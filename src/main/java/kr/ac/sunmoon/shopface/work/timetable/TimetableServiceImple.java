@@ -42,7 +42,13 @@ public class TimetableServiceImple implements TimetableService {
 					scheduleMapper.insert(schedule);
 					
 					isSuccess = true;
-				} 
+				} else if (timetables.size() == 1) {
+					schedule.setTimetableNo(timetables.get(0).getTimetableNo());
+					schedule.setState('R');
+					scheduleMapper.insert(schedule);
+
+					isSuccess = true;
+				}  
 			}
 		return isSuccess;
 	}
@@ -86,32 +92,35 @@ public class TimetableServiceImple implements TimetableService {
 	public boolean editTimetable(Timetable timetable, Schedule schedule) {
 		//1. 현재 시간보다 근무 시작 시간이 지났는지 확인
 		try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("YY-MM-DD HH:mm:ss");
-			
+			SimpleDateFormat dateFormat = new SimpleDateFormat("YY-MM-dd HH:mm:ss");
 			Date currentTime = new Date();
 			String current = dateFormat.format(currentTime);
 			
-			Date today = dateFormat.parse(current);
-			
 			String startTime = timetable.getWorkStartTime();
-			Date workStartTime = dateFormat.parse(startTime);
 			
-			int compare = today.compareTo(workStartTime);
+			int compare = current.compareTo(startTime);
 			if (compare < 0) {
-				List<Schedule> schedules = this.scheduleMapper.selectAll(schedule);
-				if (schedules != null && schedules.size() == 1) {
-					this.timetableMapper.update(timetable);
+				Schedule stateCheck = this.scheduleMapper.select(schedule);
+				
+				if (stateCheck.getState() == 'R' || stateCheck.getState() == 'L') {
+					Schedule select = new Schedule();
+					select.setTimetableNo(schedule.getTimetableNo());
+					List<Schedule> schedules = this.scheduleMapper.selectAll(select);
 					
-					return true;
-				} else if (schedules != null && schedules.size() > 1) {
-					this.timetableMapper.insert(timetable);
-		
-					List<Timetable> result = this.timetableMapper.selectAll(timetable);
-					if (result != null && result.size() == 1) {
-						schedule.setTimetableNo(result.get(0).getTimetableNo());
-						this.scheduleMapper.update(schedule);
-						
+					if (schedules != null && schedules.size() == 1) {
+						this.timetableMapper.update(timetable);
 						return true;
+					} else if (schedules != null && schedules.size() > 1) {
+						this.timetableMapper.insert(timetable);
+						
+						List<Timetable> result = this.timetableMapper.selectAll(timetable);
+						if (result != null && result.size() == 1) {
+							
+							schedule.setTimetableNo(result.get(0).getTimetableNo());
+							this.scheduleMapper.update(schedule);
+							return true;
+						}
+						return false;
 					}
 					return false;
 				}
@@ -134,14 +143,21 @@ public class TimetableServiceImple implements TimetableService {
 				if (existSchedule.getState() == 'R' 
 						|| existSchedule.getState() == 'A') {
 					scheduleMapper.delete(existSchedule);
+					
+					Schedule parameter = new Schedule();
+					parameter.setTimetableNo(schedule.getNo());
+					
+					List<Schedule> resultSchedules = this.scheduleMapper.selectAll(parameter);
+					if (resultSchedules != null) {
+						if (resultSchedules.size() > 0) {
+							isSuccess = true;
+						}
+					} else {
+						this.timetableMapper.delete(new Timetable(schedule.getNo()));
+						isSuccess = true;
+					}
 				}
 			}
-			
-			Timetable timetable = new Timetable();
-			timetable.setTimetableNo(schedule.getTimetableNo());
-			timetableMapper.delete(timetable);
-			
-			isSuccess = true;
 		}
 		
 		return isSuccess;
