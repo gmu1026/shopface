@@ -144,15 +144,18 @@ public class TimetableServiceImple implements TimetableService {
 					scheduleMapper.delete(existSchedule);
 					
 					Schedule parameter = new Schedule();
-					parameter.setTimetableNo(schedule.getNo());
+					parameter.setTimetableNo(schedule.getTimetableNo());
 					
 					List<Schedule> resultSchedules = this.scheduleMapper.selectAll(parameter);
+
 					if (resultSchedules != null) {
-						if (resultSchedules.size() > 0) {
+						if (resultSchedules.size() == 0) {
+							this.timetableMapper.delete(new Timetable(schedule.getTimetableNo()));
+							isSuccess = true;
+						} else {
 							isSuccess = true;
 						}
 					} else {
-						this.timetableMapper.delete(new Timetable(schedule.getNo()));
 						isSuccess = true;
 					}
 				}
