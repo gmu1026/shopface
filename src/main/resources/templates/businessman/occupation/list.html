@@ -27,7 +27,7 @@
 					<label for="occupationColor" class="mr-2">색상:</label>
 	                <input type='text' id="occupation-color" name="color"/>
 					<div class="ml-4 mr-2">
-						<button type="submit" class="btn btn-primary" id="post-button" name="postBtn">등록</button>
+						<button type="button" class="btn btn-primary" id="post-button" name="postBtn">등록</button>
 					</div>
 				</form>
               </div>
@@ -221,6 +221,7 @@ $('document').ready(function() {
 	$('#post-button').click(function() {
 		if($('input[name=name]').val() != null && $('input[name=name]').val() != '' ) {
 		 	var occupationColor = $("#occupation-color").spectrum("get").toHexString().toUpperCase();
+		 	
 			$('input[name=color]').val(occupationColor);
 			$('input[name=branchNo]').val(currentBranchNo);
 			$('#post-form').submit();
