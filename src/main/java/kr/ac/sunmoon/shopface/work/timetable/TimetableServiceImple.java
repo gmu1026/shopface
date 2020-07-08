@@ -90,14 +90,13 @@ public class TimetableServiceImple implements TimetableService {
 
 	@Override
 	public boolean editTimetable(Timetable timetable, Schedule schedule) {
-		//1. 현재 시간보다 근무 시작 시간이 지났는지 확인
 		try {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("YY-MM-dd HH:mm:ss");
 			Date currentTime = new Date();
 			String current = dateFormat.format(currentTime);
 			
 			String startTime = timetable.getWorkStartTime();
-			
+
 			int compare = current.compareTo(startTime);
 			if (compare < 0) {
 				Schedule stateCheck = this.scheduleMapper.select(schedule);
