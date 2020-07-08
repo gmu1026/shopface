@@ -153,6 +153,9 @@ public class MemberServiceImpl implements MemberService {
 		List<GrantedAuthority> authorities = new ArrayList<>();
 		
 		Member existMember = memberMapper.select(member);
+		if ("D".equals(existMember.getState())) {
+			throw new UsernameNotFoundException("비활성화된 유저입니다.");
+		}
 		
 		if ("admin".equals(existMember.getId())) {
 			authorities.add(new SimpleGrantedAuthority(Role.ADMIN.getValue()));

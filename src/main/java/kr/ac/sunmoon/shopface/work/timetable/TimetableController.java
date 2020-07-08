@@ -42,10 +42,6 @@ public class TimetableController {
 	public ModelAndView getTimetable(@RequestParam(value = "result", required = false, defaultValue = "none") String result, @AuthenticationPrincipal User user) {
 		ModelAndView mav = new ModelAndView("work/timetable/list");
 		
-		List<GrantedAuthority> list = user.getAuthorities().stream().collect(toList());
-		log.info(list.get(0).getAuthority());
-		
-		
 		return mav;
 	}
 	

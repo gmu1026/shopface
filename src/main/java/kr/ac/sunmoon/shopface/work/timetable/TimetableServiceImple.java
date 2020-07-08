@@ -37,7 +37,7 @@ public class TimetableServiceImple implements TimetableService {
 				if (timetables.size() == 0) {
 					timetableMapper.insert(timetable);
 					
-					schedule.setTimetableNo(timetableMapper.selectAll(timetable).get(0).getNo());
+					schedule.setTimetableNo(timetableMapper.selectAll(timetable).get(0).getTimetableNo());
 					schedule.setState('R');
 					scheduleMapper.insert(schedule);
 					
@@ -57,7 +57,7 @@ public class TimetableServiceImple implements TimetableService {
 				List<Timetable> timetables = this.timetableMapper.selectAll(timetable);
 				if (timetables.size() > 0) {
 					for (int i = 0; i < timetables.size(); i++) {
-						int no = timetables.get(i).getNo();
+						int no = timetables.get(i).getTimetableNo();
 						
 						Schedule parameterSchedule = new Schedule();
 						parameterSchedule.setTimetableNo(no);
@@ -86,7 +86,7 @@ public class TimetableServiceImple implements TimetableService {
 	public boolean editTimetable(Timetable timetable, Schedule schedule) {
 		//1. 현재 시간보다 근무 시작 시간이 지났는지 확인
 		try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("YY-MM-DD HH24:MI:SS");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("YY-MM-DD HH:mm:ss");
 			
 			Date currentTime = new Date();
 			String current = dateFormat.format(currentTime);
@@ -108,7 +108,7 @@ public class TimetableServiceImple implements TimetableService {
 		
 					List<Timetable> result = this.timetableMapper.selectAll(timetable);
 					if (result != null && result.size() == 1) {
-						schedule.setTimetableNo(result.get(0).getNo());
+						schedule.setTimetableNo(result.get(0).getTimetableNo());
 						this.scheduleMapper.update(schedule);
 						
 						return true;
@@ -126,39 +126,24 @@ public class TimetableServiceImple implements TimetableService {
 
 	@Override
 	public boolean removeTimetable(Schedule schedule) {
-		try {
-			if (schedule.getNo() > 0
-					&& schedule.getNo() > 0) {
-				List<Schedule> schedules = new ArrayList<Schedule>();
-				schedules = this.scheduleMapper.selectAll(schedule);
-				if (schedules != null) {
-					if (schedules != null && schedules.size() == 1) {
-						if (schedules.get(0).getState() == 'R' || schedules.get(0).getState() == 'B') {
-							this.scheduleMapper.delete(schedule);
-							Schedule parameter = new Schedule();
-							parameter.setTimetableNo(schedule.getNo());
-							
-							List<Schedule> resultSchedules = this.scheduleMapper.selectAll(parameter);
-							if (resultSchedules != null) {
-								if (resultSchedules.size() > 0) {
-									return true;
-								}
-							} else {
-								this.timetableMapper.delete(new Timetable(schedule.getNo()));
-								return true;
-							}
-						} else {
-							return false;
-						}
-					} else {
-						return false;
-					}					
+		boolean isSuccess = false;
+		
+		List<Schedule> existSchedules = scheduleMapper.selectAll(schedule);
+		if (existSchedules.size() > 0) {
+			for (Schedule existSchedule : existSchedules) {
+				if (existSchedule.getState() == 'R' 
+						|| existSchedule.getState() == 'A') {
+					scheduleMapper.delete(existSchedule);
 				}
 			}
-		} catch (Exception e) {
-			return false;
+			
+			Timetable timetable = new Timetable();
+			timetable.setTimetableNo(schedule.getTimetableNo());
+			timetableMapper.delete(timetable);
+			
+			isSuccess = true;
 		}
 		
-		return false;
+		return isSuccess;
 	}
 }

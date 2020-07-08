@@ -5,7 +5,7 @@
 <mapper
 	namespace="kr.ac.sunmoon.shopface.work.schedule.ScheduleMapper">
 	<resultMap type="timetable" id="timetableMap">
-		<id column="TIMETABLE_KEY" property="no" />
+		<id column="TIMETABLE_KEY" property="timetableNo" />
 		<result column="BRANCH_NO" property="branchNo" />
 		<result column="WORK_START_TIME" property="workStartTime" />
 		<result column="WORK_END_TIME" property="workEndTime" />

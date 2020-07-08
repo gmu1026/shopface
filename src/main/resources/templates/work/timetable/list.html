@@ -368,7 +368,8 @@
 
 		$("#timetableNo").val(idArry[0]);
 		$("#no").val(idArry[1]);
-
+		$("#edt_memberId option[value=" + idArry[2] + ']').prop('selected', 'selected').change();
+		
 		$("#edt_branchNo").val(parseInt(branchNo));
 
 		$('#edt_startHour option[value=' + startArry[0] + ']').prop('selected',
